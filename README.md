@@ -6,7 +6,8 @@ Because Orange is the new Black.
 Usage
 =====
 
-curl -O http://dockrkt.com/{publicrepository}/{username}/{image}:{tag}
+curl -O http://dockrkt.com/{registry}/{image}
+e.g.: curl -O http://dockrkt.com/docker/ubuntu:latest
 
 DockRkt will return an ACI file that represents the docker container converted to Rocket format.
 
@@ -21,7 +22,7 @@ http://dockrkt.com/joecool-etcd-latest.aci
 Conventions
 ===========
 
-Repository is required in the URL.  For hub.docker.com use "docker".  So to convert bketelsen/nsqd you would
+Registry is required in the URL.  For hub.docker.com and base images like 'ubuntu' use "docker".  So to convert bketelsen/nsqd you would
 request http://dockrkt.com/docker/bketelsen/nsqd:latest
 
 Tags are optional, latest is assumed if none given.

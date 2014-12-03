@@ -1,31 +1,29 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"os/exec"
 
 	"github.com/gorilla/mux"
 )
 
 type container struct {
-	repository string
-	user       string
-	image      string
-	tag        string
+	registry string
+	image    string
 }
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/{repository}/{user}/{image}:{tag}", RocketHandler)
+	r.HandleFunc("/{registry}/{image}", RocketHandler)
 	http.Handle("/", r)
+	http.ListenAndServe(":8080", r)
 }
 func RocketHandler(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	repo, ok := vars["repository"]
-	if !ok {
-		res.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	usr, ok := vars["user"]
+	reg, ok := vars["registry"]
 	if !ok {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -34,18 +32,29 @@ func RocketHandler(res http.ResponseWriter, req *http.Request) {
 	if !ok {
 		res.WriteHeader(http.StatusBadRequest)
 	}
-	t, ok := vars["tag"]
-
 	c := container{
-		repository: repo,
-		user:       usr,
-		image:      img,
-		tag:        t,
+		registry: repo,
+		image:    img,
 	}
-
+	err := pullImage(c)
+	if err != nil {
+		res.WriteHeader(http.StatusNotFound)
+		return
+	}
+	return
 }
 
-func pullImage() {}
+func pullImage(c container) error {
+	cmd := exec.Command("docker", "pull", nameFromC(c))
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		log.Println("ERROR:", err)
+		return err
+	}
+	return nil
+}
 
 func runImage() {}
 
@@ -58,3 +67,10 @@ func rmImage() {}
 func createManifest() {}
 
 func packageAci() {}
+
+func nameFromC(c container) string {
+	if c.registry != nil {
+		return fmt.Sprintf("%s/%s", c.registry, c.image)
+	}
+	return fmt.Sprintf("%s", c.image)
+}
