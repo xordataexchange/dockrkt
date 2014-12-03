@@ -33,3 +33,6 @@ Contributing
 
 Fork it, rock it, PR it.  Include tests.
 
+
+Hipsters, you've found your home.
+
